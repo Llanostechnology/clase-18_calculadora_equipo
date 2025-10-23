@@ -1,83 +1,78 @@
+= document.getElementById("display");
+const themeSwitch = document.getElementById("themeSwitch");
+const themeLabel = document.getElementById("themeLabel");
 
-// Calculadora: suma, resta, multiplicación, división, seno, coseno, tangente, raíz cuadrada
-const $ = selector => document.querySelector(selector);
-
-const valueA = $('#valueA');
-const valueB = $('#valueB');
-const output = $('#output');
-const error = $('#error');
-const angleMode = $('#angleMode');
-
-function parseNumber(str) {
-	if (str === null || str === undefined) return NaN;
-	// aceptar comas o puntos
-	const normalized = String(str).trim().replace(',', '.');
-	return normalized === '' ? NaN : Number(normalized);
+// ✅ Agregar texto al display
+function append(value) {
+  display.value += value;
 }
 
-function toRadiansIfNeeded(val) {
-	return angleMode.value === 'deg' ? val * Math.PI / 180 : val;
+// ✅ Limpiar pantalla
+function clearDisplay() {
+  display.value = "";
 }
 
-function clearError() {
-	error.textContent = '';
+// ✅ Borrar último carácter
+function backspace() {
+  display.value = display.value.slice(0, -1);
 }
 
-function showError(msg) {
-	error.textContent = msg;
+// ✅ Calcular expresión
+function calculate() {
+  try {
+    let expression = display.value.replace(/%/g, "/100");
+    display.value = eval(expression);
+  } catch {
+    display.value = "Error";
+  }
 }
 
-function setResult(value) {
-	output.textContent = typeof value === 'number' && !isFinite(value) ? String(value) : value;
+// ✅ Raíz cuadrada
+function sqrt() {
+  try {
+    display.value = Math.sqrt(parseFloat(display.value));
+  } catch {
+    display.value = "Error";
+  }
 }
 
-function doBinaryOp(op) {
-	clearError();
-	const a = parseNumber(valueA.value);
-	const b = parseNumber(valueB.value);
-	if (Number.isNaN(a) || Number.isNaN(b)) return showError('Ingrese números válidos en A y B.');
-
-	let res;
-	switch (op) {
-		case 'add': res = a + b; break;
-		case 'sub': res = a - b; break;
-		case 'mul': res = a * b; break;
-		case 'div':
-			if (b === 0) return showError('Error: división por cero');
-			res = a / b; break;
-		default: return showError('Operación desconocida');
-	}
-	setResult(res);
+// ✅ Seno (en grados)
+function sin() {
+  try {
+    let radians = parseFloat(display.value) * (Math.PI / 180);
+    display.value = Math.sin(radians).toFixed(6);
+  } catch {
+    display.value = "Error";
+  }
 }
 
-function doUnaryOp(op) {
-	clearError();
-	const a = parseNumber(valueA.value);
-	if (Number.isNaN(a)) return showError('Ingrese un número válido en A.');
-
-	let res;
-	switch (op) {
-		case 'sin': res = Math.sin(toRadiansIfNeeded(a)); break;
-		case 'cos': res = Math.cos(toRadiansIfNeeded(a)); break;
-		case 'tan': res = Math.tan(toRadiansIfNeeded(a)); break;
-		case 'sqrt':
-			if (a < 0) return showError('Error: raíz de número negativo');
-			res = Math.sqrt(a); break;
-		default: return showError('Operación desconocida');
-	}
-	setResult(res);
+// ✅ Coseno (en grados)
+function cos() {
+  try {
+    let radians = parseFloat(display.value) * (Math.PI / 180);
+    display.value = Math.cos(radians).toFixed(6);
+  } catch {
+    display.value = "Error";
+  }
 }
 
-document.addEventListener('click', (e) => {
-	const btn = e.target.closest('button[data-op]');
-	if (!btn) return;
-	const op = btn.dataset.op;
-	if (['add','sub','mul','div'].includes(op)) doBinaryOp(op);
-	else doUnaryOp(op);
+// ✅ Soporte de teclado
+document.addEventListener("keydown", (e) => {
+  const key = e.key;
+
+  if (!isNaN(key) || ["+", "-", "*", "/", "."].includes(key)) {
+    append(key);
+  } else if (key === "Enter") {
+    calculate();
+  } else if (key === "Backspace") {
+    backspace();
+  } else if (key === "Escape") {
+    clearDisplay();
+  }
 });
 
-// atajos de teclado: Enter para sumar por defecto
-document.addEventListener('keydown', (e) => {
-	if (e.key === 'Enter') doBinaryOp('add');
+// ✅ Cambiar entre modo claro / oscuro
+themeSwitch.addEventListener("change", () => {
+  document.body.classList.toggle("dark");
+  themeLabel.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
 });
-
