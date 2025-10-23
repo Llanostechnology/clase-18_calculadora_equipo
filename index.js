@@ -1,4 +1,4 @@
-= document.getElementById("display");
+const display = document.getElementById("display");
 const themeSwitch = document.getElementById("themeSwitch");
 const themeLabel = document.getElementById("themeLabel");
 
